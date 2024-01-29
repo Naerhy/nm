@@ -15,12 +15,10 @@
 - c:
 	- ...
 - D:
-	- sh_flags == SHF_ALLOC
-	- sh_flags == SHF_WRITE
+	- sh_flags == SHF_WRITE + SHF_ALLOC
 	- st_info == STB_GLOBAL
 - d:
-	- sh_flags == SHF_ALLOC
-	- sh_flags == SHF_WRITE
+	- sh_flags == SHF_WRITE + SHF_ALLOC
 	- st_info == STB_LOCAL
 - G:
 	- ...
