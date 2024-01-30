@@ -24,4 +24,8 @@
 // TODO: remove
 #include <string.h>
 
+uint16_t sw16(uint16_t v);
+uint32_t sw32(uint32_t v);
+uint64_t sw64(uint64_t v);
+
 #endif
