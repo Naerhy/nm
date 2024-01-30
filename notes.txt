@@ -1,3 +1,21 @@
+===== PARSING =====
+
+- check ELF magic number && size > 4
+- check 32 or 64 bits and if size > structure size
+- check endian && if invalid
+- check current elf version and if invalid [?]
+- check file type > relocatable | executable | shared
+- check ph offset with file size
+- check sh offset with file size
+- check size of elf with struct
+- check phentsize with size of ph struct
+- check if phentsize * e_phnum < offset + file size
+- check shentsize with size of sh struct
+- check if shentsize * e_shnum < offset + file size
+- check if symtab exists > else no symbols
+
+===== SYMBOLS =====
+
 ! do not include symbols of type SECTION or FILE
 
 - A:

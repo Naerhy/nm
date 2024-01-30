@@ -24,6 +24,12 @@
 // TODO: remove
 #include <string.h>
 
+extern int same_endian;
+
+unsigned char check_intpr(unsigned char const* intpr, off_t fsize);
+int check_endian(unsigned char const* intpr);
+int parse_header64(Elf64_Ehdr* header, off_t fsize);
+
 uint16_t sw16(uint16_t v);
 uint32_t sw32(uint32_t v);
 uint64_t sw64(uint64_t v);

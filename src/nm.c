@@ -1,12 +1,6 @@
 #include "nm.h"
 
-static unsigned char check_intpr(unsigned char const* intpr, off_t fsize)
-{
-	if (fsize < EI_NIDENT || intpr[EI_MAG0] != ELFMAG0 || intpr[EI_MAG1] != ELFMAG1
-			|| intpr[EI_MAG2] != ELFMAG2 || intpr[EI_MAG3] != ELFMAG3)
-		return ELFCLASSNONE;
-	return intpr[EI_CLASS];
-}
+int same_endian = -1;
 
 static void handle_32bits(Elf32_Ehdr* header)
 {
@@ -193,23 +187,33 @@ static int handle_file(char const* filename)
 	if (fmap == MAP_FAILED)
 		return 0;
 	class = check_intpr(fmap, finfo.st_size);
-	if (class == ELFCLASS32 && finfo.st_size >= 52)
+	same_endian = check_endian(fmap);
+	if (same_endian == -1)
+	{
+		return 0;
+	}
+	if (class == ELFCLASS32 && (size_t)finfo.st_size >= sizeof(Elf32_Ehdr))
 	{
 		handle_32bits(fmap);
 	}
-	else if (class == ELFCLASS64 && finfo.st_size >= 64)
+	else if (class == ELFCLASS64 && (size_t)finfo.st_size >= sizeof(Elf64_Ehdr))
 	{
+		if (!parse_header64(fmap, finfo.st_size))
+			return 0;
 		handle_64bits(fmap);
 	}
 	else
-		// TODO: munmap if error
+	{
+		munmap(fmap, finfo.st_size);
 		return 0;
+	}
 	munmap(fmap, finfo.st_size);
 	return 1;
 }
 
 int main(int argc, char const* const* argv)
 {
+	// TODO: print filename before nm output if multiple args, do not print if only 1 arg
 	if (argc == 1)
 	{
 		if (!handle_file("a.out"))
