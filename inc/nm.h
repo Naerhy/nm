@@ -26,9 +26,13 @@
 
 extern int same_endian;
 
-unsigned char check_intpr(unsigned char const* intpr, off_t fsize);
-int check_endian(unsigned char const* intpr);
+unsigned char parse_intpr(unsigned char const* intpr, off_t fsize);
+int parse_endian(unsigned char const* intpr);
+int parse_header32(Elf32_Ehdr* header, off_t fsize);
 int parse_header64(Elf64_Ehdr* header, off_t fsize);
+
+void print_symbols32(Elf32_Ehdr* header);
+void print_symbols64(Elf64_Ehdr* header);
 
 uint16_t sw16(uint16_t v);
 uint32_t sw32(uint32_t v);
