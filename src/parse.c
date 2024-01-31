@@ -53,28 +53,23 @@ int parse_header32(Elf32_Ehdr* header, off_t fsize)
 int parse_header64(Elf64_Ehdr* header, off_t fsize)
 {
 	uint16_t type;
-	Elf64_Off phoff;
 	Elf64_Off shoff;
-	uint16_t phentsize;
 	uint16_t shentsize;
 
 	type = sw16(header->e_type);
 	if (type != ET_REL && type != ET_EXEC && type != ET_DYN)
 		return 0;
-	phoff = sw64(header->e_phoff);
 	shoff = sw64(header->e_shoff);
-	if (phoff > (Elf64_Off)fsize || shoff > (Elf64_Off)fsize)
+	if (!shoff || shoff > (Elf64_Off)fsize)
 		return 0;
 	if (sw16(header->e_ehsize) != sizeof(Elf64_Ehdr))
 		return 0;
-	phentsize = sw16(header->e_phentsize);
 	shentsize = sw16(header->e_shentsize);
-	if (phentsize != sizeof(Elf64_Phdr) || shentsize != sizeof(Elf64_Shdr))
+	if (shentsize != sizeof(Elf64_Shdr))
 		return 0;
 	if (!sw16(header->e_shnum))
 		return 0;
-	if (phoff + phentsize * sw16(header->e_phnum) > (Elf64_Off)fsize
-			|| shoff + shentsize * sw16(header->e_shnum) > (Elf64_Off)fsize)
+	if (shoff + shentsize * sw16(header->e_shnum) > (Elf64_Off)fsize)
 		return 0;
 	return 1;
 }
