@@ -32,8 +32,8 @@ static char sym_type(Elf32_Shdr* sht, unsigned char* shstrtab, Elf32_Sym* symbol
 		return 'C';
 	else if (st_shndx == SHN_UNDEF)
 		return 'U';
-	else if (!strcmp((char*)shstrtab + sw32((sht + st_shndx)->sh_name), ".debug")
-			|| !strcmp((char*)shstrtab + sw32((sht + st_shndx)->sh_name), ".line"))
+	else if (!ft_strcmp((char*)shstrtab + sw32((sht + st_shndx)->sh_name), ".debug", 0)
+			|| !ft_strcmp((char*)shstrtab + sw32((sht + st_shndx)->sh_name), ".line", 0))
 		return 'N';
 	else if (sw32((sht + st_shndx)->sh_flags) & SHF_EXECINSTR)
 		return ELF32_ST_BIND(symbol->st_info) != STB_LOCAL ? 'T' : 't';
@@ -51,7 +51,7 @@ static char sym_type(Elf32_Shdr* sht, unsigned char* shstrtab, Elf32_Sym* symbol
 		return '?';
 }
 
-void print_symbols32(Elf32_Ehdr* header)
+void save_symbols32(Elf32_Ehdr* header, Nm* nm)
 {
 	Elf32_Shdr* sht;
 	unsigned char* shstrtab;
@@ -60,6 +60,8 @@ void print_symbols32(Elf32_Ehdr* header)
 	Elf32_Sym* symtab;
 	unsigned char* strtab;
 	Elf32_Sym* symbol;
+	Symbol* symnode;
+	LkList* lknode;
 
 	sht = (Elf32_Shdr*)((unsigned char*)header + sw32(header->e_shoff));
 	shstrtab = (unsigned char*)header + sw32((sht + sw16(header->e_shstrndx))->sh_offset);
@@ -74,25 +76,18 @@ void print_symbols32(Elf32_Ehdr* header)
 		symbol = symtab + j / sw32(sh_symtab->sh_entsize);
 		if (ELF32_ST_TYPE(symbol->st_info) != STT_FILE && ELF32_ST_TYPE(symbol->st_info) != STT_SECTION)
 		{
-
-			// print value
-			if (sw16(symbol->st_shndx) == SHN_UNDEF)
-				printf("%8s", "");
-			else
-				printf("%08x", sw32(symbol->st_value));
-			printf(" ");
-
-			// print type
-			printf("%c", sym_type(sht, shstrtab, symbol));
-			printf(" ");
-
-			// print name
-			if (symbol->st_name)
-				printf("%s", strtab + sw32(symbol->st_name));
-			else
-				printf("(null)");
-			printf("\n");
-
+			symnode = malloc(sizeof(Symbol));
+			// TODO: handle error
+			if (!symnode)
+				return ;
+			symnode->value = sw16(symbol->st_shndx) == SHN_UNDEF ? NULL : ft_itoa(sw32(symbol->st_value), "0123456789abcdef");
+			symnode->type = sym_type(sht, shstrtab, symbol);
+			// check return error
+			symnode->name = sw32(symbol->st_name) ? ft_strdup((char*)strtab + sw32(symbol->st_name), 0) : NULL;
+			lknode = lklist_create((void*)symnode);
+			// check error return
+			// check double pointer -> better to pass it in parent function parameter?
+			lklist_add(&nm->symbols, lknode);
 		}
 	}
 }

@@ -1,8 +1,34 @@
 #include "nm.h"
 
-int same_endian = -1;
+int endianness = -1;
 
-static int handle_file(char const* filename)
+static void print_symbols(Nm* nm, char const* filename, int bits)
+{
+	LkList* tmp;
+	Symbol* sym;
+
+	if (nm->nbfiles > 1)
+	{
+		wrchar('\n');
+		wrstr(filename);
+		wrchar(':');
+		wrchar('\n');
+	}
+	tmp = nm->symbols;
+	while (tmp)
+	{
+		sym = tmp->content;
+		write_value(sym->value, bits);
+		wrchar(' ');
+		wrchar(sym->type);
+		wrchar(' ');
+		wrstr(sym->name ? sym->name : "(null)");
+		wrchar('\n');
+		tmp = tmp->next;
+	}
+}
+
+static int handle_file(Nm* nm, char const* filename)
 {
 	int fd;
 	struct stat finfo;
@@ -17,8 +43,8 @@ static int handle_file(char const* filename)
 	if (fmap == MAP_FAILED)
 		return 0;
 	class = parse_intpr(fmap, finfo.st_size);
-	same_endian = parse_endian(fmap);
-	if (same_endian == -1)
+	endianness = parse_endian(fmap);
+	if (endianness == -1)
 	{
 		munmap(fmap, finfo.st_size);
 		return 0;
@@ -30,7 +56,8 @@ static int handle_file(char const* filename)
 			munmap(fmap, finfo.st_size);
 			return 0;
 		}
-		print_symbols32(fmap);
+		save_symbols32(fmap, nm);
+		print_symbols(nm, filename, 32);
 	}
 	else if (class == ELFCLASS64 && (size_t)finfo.st_size >= sizeof(Elf64_Ehdr))
 	{
@@ -39,7 +66,8 @@ static int handle_file(char const* filename)
 			munmap(fmap, finfo.st_size);
 			return 0;
 		}
-		print_symbols64(fmap);
+		save_symbols64(fmap, nm);
+		print_symbols(nm, filename, 64);
 	}
 	else
 	{
@@ -50,21 +78,44 @@ static int handle_file(char const* filename)
 	return 1;
 }
 
-int main(int argc, char const* const* argv)
+static void free_nm(Nm* nm)
 {
-	// TODO: print filename before nm output if multiple args, do not print if only 1 arg
-	if (argc == 1)
+	free(nm->filenames);
+}
+
+static void init_nm(Nm* nm)
+{
+	nm->symbols = NULL;
+	nm->flags = 0x4;
+	nm->filenames = NULL;
+	nm->nbfiles = 0;
+}
+
+int main(int argc, char** argv)
+{
+	Nm nm;
+
+	init_nm(&nm);
+	nm.filenames = malloc(sizeof(char*) * argc);
+	// TODO: improve this error
+	if (!nm.filenames)
+		return 1;
+	parse_args(&nm, argc, argv);
+	if (!nm.nbfiles)
 	{
-		if (!handle_file("a.out"))
-			perror("nm");
+		// TODO: handle error
+		if (!handle_file(&nm, "a.out"))
+			return 1;
 	}
 	else
 	{
-		for (int i = 1; i < argc; i++)
+		for (size_t i = 0; i < nm.nbfiles; i++)
 		{
-			if (!handle_file(*(argv + i)))
-				perror("nm");
+			// TODO: handle error
+			if (!handle_file(&nm, nm.filenames[i]))
+				return 1;
 		}
 	}
+	free_nm(&nm);
 	return 0;
 }

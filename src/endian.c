@@ -2,14 +2,14 @@
 
 uint16_t sw16(uint16_t v)
 {
-	if (same_endian)
+	if (endianness)
 		return v;
 	return (v << 8) | (v >> 8);
 }
 
 uint32_t sw32(uint32_t v)
 {
-	if (same_endian)
+	if (endianness)
 		return v;
 	return ((v << 24) & 0xFF000000)
 			| ((v << 8) & 0x00FF0000)
@@ -19,7 +19,7 @@ uint32_t sw32(uint32_t v)
 
 uint64_t sw64(uint64_t v)
 {
-	if (same_endian)
+	if (endianness)
 		return v;
 	return ((v << 56) & 0xFF00000000000000ULL)
 			| ((v << 40) & 0x00FF000000000000ULL)

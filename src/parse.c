@@ -1,5 +1,29 @@
 #include "nm.h"
 
+void parse_args(Nm* nm, int argc, char** argv)
+{
+	for (int i = 1; i < argc; i++)
+	{
+		if (!ft_strcmp(argv[i], "-a", 0))
+			nm->flags |= DEBUG;
+		else if (!ft_strcmp(argv[i], "-g", 0))
+			nm->flags |= EXTERN;
+		else if (!ft_strcmp(argv[i], "-p", 0))
+			nm->flags &= ~SORT;
+		else if (!ft_strcmp(argv[i], "-r", 0))
+			nm->flags |= REVERSE;
+		else if (!ft_strcmp(argv[i], "-u", 0))
+			nm->flags |= UNDEFINED;
+		else if (ft_strlen(argv[i]) > 1 && argv[i][0] == '-')
+			return ; // TODO: ERROR
+		else
+		{
+			nm->filenames[nm->nbfiles] = argv[i];
+			nm->nbfiles++;
+		}
+	}
+}
+
 unsigned char parse_intpr(unsigned char const* intpr, off_t fsize)
 {
 	if (fsize < EI_NIDENT || intpr[EI_MAG0] != ELFMAG0 || intpr[EI_MAG1] != ELFMAG1
