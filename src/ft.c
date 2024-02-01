@@ -79,13 +79,3 @@ char* ft_itoa(Elf64_Addr value, char const* base)
 	}
 	return str;
 }
-
-void wrchar(char c)
-{
-	write(STDOUT_FILENO, &c, 1);
-}
-
-void wrstr(char const* str)
-{
-	write(STDOUT_FILENO, str, ft_strlen(str));
-}

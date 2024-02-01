@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -41,16 +42,14 @@ typedef struct Nm
 
 extern int endianness;
 
-void parse_args(Nm* nm, int argc, char** argv);
+int parse_args(Nm* nm, int argc, char** argv);
 unsigned char parse_intpr(unsigned char const* intpr, off_t fsize);
 int parse_endian(unsigned char const* intpr);
 int parse_header32(Elf32_Ehdr* header, off_t fsize);
 int parse_header64(Elf64_Ehdr* header, off_t fsize);
 
-void save_symbols32(Elf32_Ehdr* header, Nm* nm);
-void save_symbols64(Elf64_Ehdr* header, Nm* nm);
-
-void write_value(char const* value, int bits);
+int save_symbols32(Elf32_Ehdr* header, Nm* nm);
+int save_symbols64(Elf64_Ehdr* header, Nm* nm);
 
 uint16_t sw16(uint16_t v);
 uint32_t sw32(uint32_t v);
@@ -61,11 +60,18 @@ char* ft_strcpy(char* dest, char const* src, size_t n);
 char* ft_strdup(char const* s, size_t n);
 int ft_strcmp(char const* s1, char const* s2, size_t n);
 char* ft_itoa(Elf64_Addr value, char const* base);
+
 void wrchar(char c);
 void wrstr(char const* str);
+void wrerr(char const* filename, char const* errmsg);
+void write_value(char const* value, int bits);
 
-void lklist_add(LkList** head, LkList* node);
 LkList* lklist_create(void* content);
+void lklist_add(LkList** head, LkList* node);
+void lklist_delete(LkList** head, LkList* node, void (*delete)(void*));
+void lklist_clear(LkList** head, void (*delete)(void*));
+LkList* lklist_nth(LkList* head, size_t pos);
 LkList* lklist_last(LkList* head);
+size_t lklist_pos(LkList const* head, LkList const* node);
 
 #endif

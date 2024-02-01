@@ -51,7 +51,7 @@ static char sym_type(Elf64_Shdr* sht, unsigned char* shstrtab, Elf64_Sym* symbol
 		return '?';
 }
 
-void save_symbols64(Elf64_Ehdr* header, Nm* nm)
+int save_symbols64(Elf64_Ehdr* header, Nm* nm)
 {
 	Elf64_Shdr* sht;
 	unsigned char* shstrtab;
@@ -67,7 +67,7 @@ void save_symbols64(Elf64_Ehdr* header, Nm* nm)
 	shstrtab = (unsigned char*)header + sw64((sht + sw16(header->e_shstrndx))->sh_offset);
 	index = symtab_index(sht, sw16(header->e_shnum));
 	if (index == -1)
-		return ;
+		return -1;
 	sh_symtab = sht + index;
 	strtab = (unsigned char*)header + sw64((sht + sw32(sh_symtab->sh_link))->sh_offset);
 	symtab = (Elf64_Sym*)((unsigned char*)header + sw64(sh_symtab->sh_offset));
@@ -77,17 +77,43 @@ void save_symbols64(Elf64_Ehdr* header, Nm* nm)
 		if (ELF64_ST_TYPE(symbol->st_info) != STT_FILE && ELF64_ST_TYPE(symbol->st_info) != STT_SECTION)
 		{
 			symnode = malloc(sizeof(Symbol));
-			// TODO: handle error
 			if (!symnode)
-				return ;
-			symnode->value = sw16(symbol->st_shndx) == SHN_UNDEF ? NULL : ft_itoa(sw64(symbol->st_value), "0123456789abcdef");
+				return 0;
+			if (sw16(symbol->st_shndx) != SHN_UNDEF)
+			{
+				symnode->value = ft_itoa(sw64(symbol->st_value), "0123456789abcdef");
+				if (!symnode->value)
+				{
+					free(symnode);
+					return 0;
+				}
+			}
+			else
+				symnode->value = NULL;
 			symnode->type = sym_type(sht, shstrtab, symbol);
-			// check return error
-			symnode->name = sw32(symbol->st_name) ? ft_strdup((char*)strtab + sw32(symbol->st_name), 0) : NULL;
+			if (sw32(symbol->st_name))
+			{
+				symnode->name = ft_strdup((char*)strtab + sw32(symbol->st_name), 0);
+				if (!symnode->name)
+				{
+					free(symnode->value);
+					free(symnode);
+					return 0;
+				}
+			}
+			else
+				symnode->name = NULL;
 			lknode = lklist_create((void*)symnode);
-			// check error return
-			// check double pointer -> better to pass it in parent function parameter?
+			// TODO: call free_symbol from nm.c instead
+			if (!lknode)
+			{
+				free(symnode->value);
+				free(symnode->name);
+				free(symnode);
+				return 0;
+			}
 			lklist_add(&nm->symbols, lknode);
 		}
 	}
+	return 1;
 }

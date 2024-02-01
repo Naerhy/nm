@@ -1,6 +1,6 @@
 #include "nm.h"
 
-void parse_args(Nm* nm, int argc, char** argv)
+int parse_args(Nm* nm, int argc, char** argv)
 {
 	for (int i = 1; i < argc; i++)
 	{
@@ -15,13 +15,14 @@ void parse_args(Nm* nm, int argc, char** argv)
 		else if (!ft_strcmp(argv[i], "-u", 0))
 			nm->flags |= UNDEFINED;
 		else if (ft_strlen(argv[i]) > 1 && argv[i][0] == '-')
-			return ; // TODO: ERROR
+			return 0;
 		else
 		{
 			nm->filenames[nm->nbfiles] = argv[i];
 			nm->nbfiles++;
 		}
 	}
+	return 1;
 }
 
 unsigned char parse_intpr(unsigned char const* intpr, off_t fsize)
