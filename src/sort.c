@@ -4,9 +4,14 @@ static int valuecmp(char const* s1, char const* s2)
 {
 	if (!s1)
 		return -1;
-	if (!s2)
+	else if (!s2)
 		return 1;
-	return ft_strcmp(s1, s2, 0);
+	else if (ft_atoi(s1) < ft_atoi(s2))
+		return -1;
+	else if (ft_atoi(s1) > ft_atoi(s2))
+		return 1;
+	else
+		return 0;
 }
 
 static size_t pre_underscr(char const* s)

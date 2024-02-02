@@ -66,6 +66,7 @@ char* ft_strcpy(char* dest, char const* src, size_t n);
 char* ft_strdup(char const* s, size_t n);
 int ft_strcmp(char const* s1, char const* s2, size_t n);
 char* ft_itoa(Elf64_Addr value, char const* base);
+Elf64_Addr ft_atoi(char const* s);
 
 void wrchar(char c);
 void wrstr(char const* str);

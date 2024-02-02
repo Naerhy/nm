@@ -100,3 +100,20 @@ char* ft_itoa(Elf64_Addr value, char const* base)
 	}
 	return str;
 }
+
+Elf64_Addr ft_atoi(char const* s)
+{
+	Elf64_Addr value;
+
+	value = 0;
+	while (*s)
+	{
+		value *= 16;
+		if (*s >= '0' && *s <= '9')
+			value += *s - '0';
+		else
+			value += *s - 'a' + 10;
+		s++;
+	}
+	return value;
+}
