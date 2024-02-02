@@ -2,10 +2,9 @@
 
 int endianness = -1;
 
-/*
-void __(void) { printf("OSEF\n"); }
-void _(void) { printf("OSEF\n"); }
 void ___e(void) { printf("OSEF\n"); }
+void _(void) { printf("OSEF\n"); }
+void __(void) { printf("OSEF\n"); }
 void Osef(void) { printf("OSEF\n"); }
 void osef(void) { printf("OSEF\n"); }
 void osEf(void) { printf("OSEF\n"); }
@@ -16,9 +15,11 @@ void ose_f2(void) { printf("OSEF\n"); }
 void os_ef(void) { printf("OSEF\n"); }
 void os_e_f(void) { printf("OSEF\n"); }
 void o_sef(void) { printf("OSEF\n"); }
+void putsv(void) { printf("OSEF\n"); }
 void o_se_f(void) { printf("OSEF\n"); }
 void os_zf(void) { printf("OSEF\n"); }
 void _osef(void) { printf("OSEF\n"); }
+void puts_v(void) { printf("OSEF\n"); }
 void __osef(void) { printf("OSEF\n"); }
 void os__ef(void) { printf("OSEF\n"); }
 void os__ef_(void) { printf("OSEF\n"); }
@@ -40,7 +41,6 @@ void putsF(void) { printf("OSEF\n"); }
 void putseegeg3(void) { printf("OSEF\n"); }
 void write_osef(void) { printf("OSEF\n"); }
 void write_dudu(void) { printf("OSEF\n"); }
-*/
 
 static void print_symbols(Nm* nm, char const* filename, int bits)
 {

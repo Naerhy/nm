@@ -4,10 +4,6 @@
 // TODO: print (null) when symbol name is full of 0000 [?]
 // check if no segfault when trying to read symbol->value when sorting
 
-// symbols sorting:
-// - alphabetical sort but priority for __ in front
-//   - if cmp == 0 -> sort by value
-
 #include <elf.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -62,6 +58,9 @@ uint16_t sw16(uint16_t v);
 uint32_t sw32(uint32_t v);
 uint64_t sw64(uint64_t v);
 
+int ft_isalpha(int c);
+int ft_isdigit(int c);
+int ft_isalnum(int c);
 size_t ft_strlen(char const* s);
 char* ft_strcpy(char* dest, char const* src, size_t n);
 char* ft_strdup(char const* s, size_t n);

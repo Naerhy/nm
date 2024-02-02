@@ -32,10 +32,10 @@ static int namecmp(char const* s1, char const* s2)
 	j = 0;
 	while (s1[i] || s2[j])
 	{
-		while (s1[i] == '_' || s1[i] == '@')
+		while (s1[i] && !ft_isalnum(s1[i]))
 			i++;
 		c1 = (s1[i] >= 'A' && s1[i] <= 'Z') ? s1[i] + 32 : s1[i];
-		while (s2[j] == '_' || s2[j] == '@')
+		while (s2[j] && !ft_isalnum(s2[j]))
 			j++;
 		c2 = (s2[j] >= 'A' && s2[j] <= 'Z') ? s2[j] + 32 : s2[j];
 		if (c1 != c2)
