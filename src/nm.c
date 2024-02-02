@@ -2,6 +2,46 @@
 
 int endianness = -1;
 
+/*
+void __(void) { printf("OSEF\n"); }
+void _(void) { printf("OSEF\n"); }
+void ___e(void) { printf("OSEF\n"); }
+void Osef(void) { printf("OSEF\n"); }
+void osef(void) { printf("OSEF\n"); }
+void osEf(void) { printf("OSEF\n"); }
+void _Osef(void) { printf("OSEF\n"); }
+void Os_ef(void) { printf("OSEF\n"); }
+void osef1(void) { printf("OSEF\n"); }
+void ose_f2(void) { printf("OSEF\n"); }
+void os_ef(void) { printf("OSEF\n"); }
+void os_e_f(void) { printf("OSEF\n"); }
+void o_sef(void) { printf("OSEF\n"); }
+void o_se_f(void) { printf("OSEF\n"); }
+void os_zf(void) { printf("OSEF\n"); }
+void _osef(void) { printf("OSEF\n"); }
+void __osef(void) { printf("OSEF\n"); }
+void os__ef(void) { printf("OSEF\n"); }
+void os__ef_(void) { printf("OSEF\n"); }
+void __ose_f(void) { printf("OSEF\n"); }
+void __oszf(void) { printf("OSEF\n"); }
+void osef_pr(void) { printf("OSEF\n"); }
+void __osef_pr(void) { printf("OSEF\n"); }
+void obef(void) { printf("OSEF\n"); }
+void _gmon_start__(void) { printf("OSEF\n"); }
+void lklistadd(void) { printf("OSEF\n"); }
+void parsearg(void) { printf("OSEF\n"); }
+void Parsearg(void) { printf("OSEF\n"); }
+void ParSearg(void) { printf("OSEF\n"); }
+void puts_(void) { printf("OSEF\n"); }
+void puts2(void) { printf("OSEF\n"); }
+void puts_f(void) { printf("OSEF\n"); }
+void putse(void) { printf("OSEF\n"); }
+void putsF(void) { printf("OSEF\n"); }
+void putseegeg3(void) { printf("OSEF\n"); }
+void write_osef(void) { printf("OSEF\n"); }
+void write_dudu(void) { printf("OSEF\n"); }
+*/
+
 static void print_symbols(Nm* nm, char const* filename, int bits)
 {
 	LkList* tmp;
@@ -85,6 +125,7 @@ static int handle_file(Nm* nm, char const* filename)
 			munmap(fmap, finfo.st_size);
 			return 0;
 		}
+		sort_list(nm->symbols);
 		print_symbols(nm, filename, 32);
 	}
 	else if (class == ELFCLASS64 && (size_t)finfo.st_size >= sizeof(Elf64_Ehdr))
@@ -102,6 +143,7 @@ static int handle_file(Nm* nm, char const* filename)
 			munmap(fmap, finfo.st_size);
 			return 0;
 		}
+		sort_list(nm->symbols);
 		print_symbols(nm, filename, 64);
 	}
 	else

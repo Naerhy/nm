@@ -2,6 +2,11 @@
 #define NM_H
 
 // TODO: print (null) when symbol name is full of 0000 [?]
+// check if no segfault when trying to read symbol->value when sorting
+
+// symbols sorting:
+// - alphabetical sort but priority for __ in front
+//   - if cmp == 0 -> sort by value
 
 #include <elf.h>
 #include <errno.h>
@@ -50,6 +55,8 @@ int parse_header64(Elf64_Ehdr* header, off_t fsize);
 
 int save_symbols32(Elf32_Ehdr* header, Nm* nm);
 int save_symbols64(Elf64_Ehdr* header, Nm* nm);
+
+void sort_list(LkList* symbols);
 
 uint16_t sw16(uint16_t v);
 uint32_t sw32(uint32_t v);

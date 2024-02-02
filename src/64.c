@@ -91,18 +91,13 @@ int save_symbols64(Elf64_Ehdr* header, Nm* nm)
 			else
 				symnode->value = NULL;
 			symnode->type = sym_type(sht, shstrtab, symbol);
-			if (sw32(symbol->st_name))
+			symnode->name = ft_strdup(sw32(symbol->st_name) ? (char*)strtab + sw32(symbol->st_name) : "", 0);
+			if (!symnode->name)
 			{
-				symnode->name = ft_strdup((char*)strtab + sw32(symbol->st_name), 0);
-				if (!symnode->name)
-				{
-					free(symnode->value);
-					free(symnode);
-					return 0;
-				}
+				free(symnode->value);
+				free(symnode);
+				return 0;
 			}
-			else
-				symnode->name = NULL;
 			lknode = lklist_create((void*)symnode);
 			// TODO: call free_symbol from nm.c instead
 			if (!lknode)
