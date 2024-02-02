@@ -118,10 +118,10 @@ static int handle_file(Nm* nm, char const* filename)
 			munmap(fmap, finfo.st_size);
 			return 0;
 		}
-		save = save_symbols32(fmap, nm);
+		save = save_symbols32(fmap, nm, finfo.st_size);
 		if (save < 1)
 		{
-			wrerr(filename, save == -1 ? "No symbols" : strerror(errno));
+			wrerr(filename, (save == -2) ? "Corrupted ELF file" : (save == -1) ? "No symbols" : strerror(errno));
 			munmap(fmap, finfo.st_size);
 			return 0;
 		}
@@ -136,10 +136,10 @@ static int handle_file(Nm* nm, char const* filename)
 			munmap(fmap, finfo.st_size);
 			return 0;
 		}
-		save = save_symbols64(fmap, nm);
+		save = save_symbols64(fmap, nm, finfo.st_size);
 		if (save < 1)
 		{
-			wrerr(filename, save == -1 ? "No symbols" : strerror(errno));
+			wrerr(filename, (save == -2) ? "Corrupted ELF file" : (save == -1) ? "No symbols" : strerror(errno));
 			munmap(fmap, finfo.st_size);
 			return 0;
 		}

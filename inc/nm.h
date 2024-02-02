@@ -49,8 +49,8 @@ int parse_endian(unsigned char const* intpr);
 int parse_header32(Elf32_Ehdr* header, off_t fsize);
 int parse_header64(Elf64_Ehdr* header, off_t fsize);
 
-int save_symbols32(Elf32_Ehdr* header, Nm* nm);
-int save_symbols64(Elf64_Ehdr* header, Nm* nm);
+int save_symbols32(Elf32_Ehdr* header, Nm* nm, off_t fsize);
+int save_symbols64(Elf64_Ehdr* header, Nm* nm, off_t fsize);
 
 void sort_list(LkList* symbols);
 

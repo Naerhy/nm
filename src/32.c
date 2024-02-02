@@ -10,6 +10,13 @@ static int symtab_index(Elf32_Shdr* sht, uint16_t size)
 	return -1;
 }
 
+static int validate_sh(Elf32_Shdr* sh, off_t fsize)
+{
+	if (sh->sh_offset > (Elf32_Off)fsize || sh->sh_offset + sh->sh_size > (Elf32_Off)fsize)
+		return 0;
+	return 1;
+}
+
 static char sym_type(Elf32_Shdr* sht, unsigned char* shstrtab, Elf32_Sym* symbol)
 {
 	uint16_t st_shndx;
@@ -51,7 +58,7 @@ static char sym_type(Elf32_Shdr* sht, unsigned char* shstrtab, Elf32_Sym* symbol
 		return '?';
 }
 
-int save_symbols32(Elf32_Ehdr* header, Nm* nm)
+int save_symbols32(Elf32_Ehdr* header, Nm* nm, off_t fsize)
 {
 	Elf32_Shdr* sht;
 	unsigned char* shstrtab;
@@ -64,6 +71,8 @@ int save_symbols32(Elf32_Ehdr* header, Nm* nm)
 	LkList* lknode;
 
 	sht = (Elf32_Shdr*)((unsigned char*)header + sw32(header->e_shoff));
+	if (!validate_sh(sht + sw16(header->e_shstrndx), fsize))
+		return -2;
 	shstrtab = (unsigned char*)header + sw32((sht + sw16(header->e_shstrndx))->sh_offset);
 	index = symtab_index(sht, sw16(header->e_shnum));
 	if (index == -1)
@@ -71,6 +80,8 @@ int save_symbols32(Elf32_Ehdr* header, Nm* nm)
 	sh_symtab = sht + index;
 	strtab = (unsigned char*)header + sw32((sht + sw32(sh_symtab->sh_link))->sh_offset);
 	symtab = (Elf32_Sym*)((unsigned char*)header + sw32(sh_symtab->sh_offset));
+	if (!validate_sh(sh_symtab, fsize) || !validate_sh(sht + sw32(sh_symtab->sh_link), fsize))
+		return -2;
 	for (uint32_t j = sw32(sh_symtab->sh_entsize); j < sw32(sh_symtab->sh_size); j += sw32(sh_symtab->sh_entsize))
 	{
 		symbol = symtab + j / sw32(sh_symtab->sh_entsize);
