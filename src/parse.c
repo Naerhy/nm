@@ -49,28 +49,23 @@ int parse_endian(unsigned char const* intpr)
 int parse_header32(Elf32_Ehdr* header, off_t fsize)
 {
 	uint16_t type;
-	Elf32_Off phoff;
 	Elf32_Off shoff;
-	uint16_t phentsize;
 	uint16_t shentsize;
 
 	type = sw16(header->e_type);
 	if (type != ET_REL && type != ET_EXEC && type != ET_DYN)
 		return 0;
-	phoff = sw32(header->e_phoff);
 	shoff = sw32(header->e_shoff);
-	if (phoff > (Elf32_Off)fsize || shoff > (Elf32_Off)fsize)
+	if (!shoff || shoff > (Elf32_Off)fsize)
 		return 0;
 	if (sw16(header->e_ehsize) != sizeof(Elf32_Ehdr))
 		return 0;
-	phentsize = sw16(header->e_phentsize);
 	shentsize = sw16(header->e_shentsize);
-	if (phentsize != sizeof(Elf32_Phdr) || shentsize != sizeof(Elf32_Shdr))
+	if (shentsize != sizeof(Elf32_Shdr))
 		return 0;
 	if (!sw16(header->e_shnum))
 		return 0;
-	if (phoff + phentsize * sw16(header->e_phnum) > (Elf32_Off)fsize
-			|| shoff + shentsize * sw16(header->e_shnum) > (Elf32_Off)fsize)
+	if (shoff + shentsize * sw16(header->e_shnum) > (Elf32_Off)fsize)
 		return 0;
 	return 1;
 }
