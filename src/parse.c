@@ -51,6 +51,7 @@ int parse_header32(Elf32_Ehdr* header, off_t fsize)
 	uint16_t type;
 	Elf32_Off shoff;
 	uint16_t shentsize;
+	uint16_t shnum;
 
 	type = sw16(header->e_type);
 	if (type != ET_REL && type != ET_EXEC && type != ET_DYN)
@@ -63,9 +64,12 @@ int parse_header32(Elf32_Ehdr* header, off_t fsize)
 	shentsize = sw16(header->e_shentsize);
 	if (shentsize != sizeof(Elf32_Shdr))
 		return 0;
-	if (!sw16(header->e_shnum))
+	shnum = sw16(header->e_shnum);
+	if (!shnum)
 		return 0;
-	if (shoff + shentsize * sw16(header->e_shnum) > (Elf32_Off)fsize)
+	if (shoff + shentsize * shnum > (Elf32_Off)fsize)
+		return 0;
+	if (sw16(header->e_shstrndx) == SHN_UNDEF)
 		return 0;
 	return 1;
 }
@@ -75,6 +79,7 @@ int parse_header64(Elf64_Ehdr* header, off_t fsize)
 	uint16_t type;
 	Elf64_Off shoff;
 	uint16_t shentsize;
+	uint16_t shnum;
 
 	type = sw16(header->e_type);
 	if (type != ET_REL && type != ET_EXEC && type != ET_DYN)
@@ -87,9 +92,12 @@ int parse_header64(Elf64_Ehdr* header, off_t fsize)
 	shentsize = sw16(header->e_shentsize);
 	if (shentsize != sizeof(Elf64_Shdr))
 		return 0;
-	if (!sw16(header->e_shnum))
+	shnum = sw16(header->e_shnum);
+	if (!shnum)
 		return 0;
-	if (shoff + shentsize * sw16(header->e_shnum) > (Elf64_Off)fsize)
+	if (shoff + shentsize * shnum > (Elf64_Off)fsize)
+		return 0;
+	if (sw16(header->e_shstrndx) == SHN_UNDEF)
 		return 0;
 	return 1;
 }

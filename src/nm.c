@@ -42,11 +42,27 @@ void putseegeg3(void) { printf("OSEF\n"); }
 void write_osef(void) { printf("OSEF\n"); }
 void write_dudu(void) { printf("OSEF\n"); }
 
+static void init_nm(Nm* nm)
+{
+	nm->symbols = NULL;
+	nm->nbsym = 0;
+	nm->flags = 0x4;
+	nm->filenames = NULL;
+	nm->nbfiles = 0;
+}
+
+static void free_symbols(Symbol* symbols, size_t size)
+{
+	for (size_t i = 0; i < size; i++)
+	{
+		free(symbols[i].value);
+		free(symbols[i].name);
+	}
+	free(symbols);
+}
+
 static void print_symbols(Nm* nm, char const* filename, int bits)
 {
-	LkList* tmp;
-	Symbol* sym;
-
 	if (nm->nbfiles > 1)
 	{
 		wrchar('\n');
@@ -54,17 +70,14 @@ static void print_symbols(Nm* nm, char const* filename, int bits)
 		wrchar(':');
 		wrchar('\n');
 	}
-	tmp = nm->symbols;
-	while (tmp)
+	for (size_t i = 0; i < nm->nbsym; i++)
 	{
-		sym = tmp->content;
-		write_value(sym->value, bits);
+		write_value(nm->symbols[i].value, bits);
 		wrchar(' ');
-		wrchar(sym->type);
+		wrchar(nm->symbols[i].type);
 		wrchar(' ');
-		wrstr(sym->name ? sym->name : "(null)");
+		wrstr(nm->symbols[i].name ? nm->symbols[i].name : "(null)");
 		wrchar('\n');
-		tmp = tmp->next;
 	}
 }
 
@@ -84,8 +97,8 @@ static int handle_file(Nm* nm, char const* filename)
 	}
 	if (S_ISDIR(finfo.st_mode))
 	{
-		close(fd);
 		wrerr(filename, strerror(EISDIR));
+		close(fd);
 		return 0;
 	}
 	fmap = mmap(NULL, finfo.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
@@ -98,8 +111,8 @@ static int handle_file(Nm* nm, char const* filename)
 	class = parse_intpr(fmap, finfo.st_size);
 	if (class == ELFCLASSNONE)
 	{
-		munmap(fmap, finfo.st_size);
 		wrerr(filename, "File format not recognized");
+		munmap(fmap, finfo.st_size);
 		return 0;
 	}
 	endianness = parse_endian(fmap);
@@ -122,11 +135,13 @@ static int handle_file(Nm* nm, char const* filename)
 		if (save < 1)
 		{
 			wrerr(filename, (save == -2) ? "Corrupted ELF file" : (save == -1) ? "No symbols" : strerror(errno));
+			free_symbols(nm->symbols, nm->nbsym);
 			munmap(fmap, finfo.st_size);
 			return 0;
 		}
-		sort_list(nm->symbols);
+		sort_symbols(nm->symbols, nm->nbsym);
 		print_symbols(nm, filename, 32);
+		free_symbols(nm->symbols, nm->nbsym);
 	}
 	else if (class == ELFCLASS64 && (size_t)finfo.st_size >= sizeof(Elf64_Ehdr))
 	{
@@ -140,11 +155,13 @@ static int handle_file(Nm* nm, char const* filename)
 		if (save < 1)
 		{
 			wrerr(filename, (save == -2) ? "Corrupted ELF file" : (save == -1) ? "No symbols" : strerror(errno));
+			free_symbols(nm->symbols, nm->nbsym);
 			munmap(fmap, finfo.st_size);
 			return 0;
 		}
-		sort_list(nm->symbols);
+		sort_symbols(nm->symbols, nm->nbsym);
 		print_symbols(nm, filename, 64);
+		free_symbols(nm->symbols, nm->nbsym);
 	}
 	else
 	{
@@ -154,24 +171,6 @@ static int handle_file(Nm* nm, char const* filename)
 	}
 	munmap(fmap, finfo.st_size);
 	return 1;
-}
-
-static void free_symbols(void* content)
-{
-	Symbol* symbol;
-
-	symbol = (Symbol*)content;
-	free(symbol->value);
-	free(symbol->name);
-	free(symbol);
-}
-
-static void init_nm(Nm* nm)
-{
-	nm->symbols = NULL;
-	nm->flags = 0x4;
-	nm->filenames = NULL;
-	nm->nbfiles = 0;
 }
 
 int main(int argc, char** argv)
@@ -189,15 +188,15 @@ int main(int argc, char** argv)
 	}
 	if (!parse_args(&nm, argc, argv))
 	{
-		free(nm.filenames);
 		wrerr(NULL, "Invalid option");
+		free(nm.filenames);
 		return EXIT_FAILURE;
 	}
 	if (!nm.nbfiles)
 	{
 		if (!handle_file(&nm, "a.out"))
 			retcode = EXIT_FAILURE;
-		lklist_clear(&nm.symbols, free_symbols);
+		// lklist_clear(&nm.symbols, free_symbols);
 	}
 	else
 	{
@@ -205,7 +204,7 @@ int main(int argc, char** argv)
 		{
 			if (!handle_file(&nm, nm.filenames[i]))
 				retcode = EXIT_FAILURE;
-			lklist_clear(&nm.symbols, free_symbols);
+			// lklist_clear(&nm.symbols, free_symbols);
 		}
 	}
 	free(nm.filenames);

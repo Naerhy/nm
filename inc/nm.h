@@ -1,9 +1,6 @@
 #ifndef NM_H
 #define NM_H
 
-// TODO: print (null) when symbol name is full of 0000 [?]
-// check if no segfault when trying to read symbol->value when sorting
-
 #include <elf.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -27,15 +24,10 @@ typedef struct Symbol
 	char* name;
 } Symbol;
 
-typedef struct LkList
-{
-	void* content;
-	struct LkList* next;
-} LkList;
-
 typedef struct Nm
 {
-	LkList* symbols;
+	Symbol* symbols;
+	size_t nbsym;
 	uint8_t flags;
 	char** filenames;
 	size_t nbfiles;
@@ -52,7 +44,7 @@ int parse_header64(Elf64_Ehdr* header, off_t fsize);
 int save_symbols32(Elf32_Ehdr* header, Nm* nm, off_t fsize);
 int save_symbols64(Elf64_Ehdr* header, Nm* nm, off_t fsize);
 
-void sort_list(LkList* symbols);
+void sort_symbols(Symbol* symbols, size_t size);
 
 uint16_t sw16(uint16_t v);
 uint32_t sw32(uint32_t v);
@@ -72,13 +64,5 @@ void wrchar(char c);
 void wrstr(char const* str);
 void wrerr(char const* filename, char const* errmsg);
 void write_value(char const* value, int bits);
-
-LkList* lklist_create(void* content);
-void lklist_add(LkList** head, LkList* node);
-void lklist_delete(LkList** head, LkList* node, void (*delete)(void*));
-void lklist_clear(LkList** head, void (*delete)(void*));
-LkList* lklist_nth(LkList* head, size_t pos);
-LkList* lklist_last(LkList* head);
-size_t lklist_pos(LkList const* head, LkList const* node);
 
 #endif

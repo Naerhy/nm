@@ -73,33 +73,29 @@ static int namecmp(char const* s1, char const* s2)
 		return ft_strcmp(s1 + pre_s1, s2 + pre_s2, 0);
 }
 
-void sort_list(LkList* symbols)
+void sort_symbols(Symbol* symbols, size_t size)
 {
-	LkList* bubble;
 	int cmp;
-	Symbol* sym1;
-	Symbol* sym2;
+	Symbol tmp;
 
-	while (symbols)
+	for (size_t i = 0; i < size; i++)
 	{
-		bubble = symbols->next;
-		while (bubble)
+		for (size_t j = i + 1; j < size; j++)
 		{
-			sym1 = symbols->content;
-			sym2 = bubble->content;
-			cmp = namecmp(sym1->name, sym2->name);
+			cmp = namecmp(symbols[i].name, symbols[j].name);
 			if (cmp > 0)
 			{
-				symbols->content = bubble->content;
-				bubble->content = sym1;
+				tmp = symbols[i];
+				symbols[i] = symbols[j];
+				symbols[j] = tmp;
 			}
-			if (!cmp && valuecmp(sym1->value, sym2->value) > 0)
+			else if (!cmp && valuecmp(symbols[i].value, symbols[j].value) > 0)
 			{
-				symbols->content = bubble->content;
-				bubble->content = sym1;
+				tmp = symbols[i];
+				symbols[i] = symbols[j];
+				symbols[j] = tmp;
 			}
-			bubble = bubble->next;
+			else {}
 		}
-		symbols = symbols->next;
 	}
 }
