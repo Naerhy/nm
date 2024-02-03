@@ -26,16 +26,12 @@ static size_t pre_underscr(char const* s)
 
 static int namecmp(char const* s1, char const* s2)
 {
-	size_t i;
-	size_t j;
 	char c1;
 	char c2;
 	size_t pre_s1;
 	size_t pre_s2;
 
-	i = 0;
-	j = 0;
-	while (s1[i] || s2[j])
+	for (size_t i = 0, j = 0; s1[i] || s2[j]; i++, j++)
 	{
 		while (s1[i] && !ft_isalnum(s1[i]))
 			i++;
@@ -45,24 +41,16 @@ static int namecmp(char const* s1, char const* s2)
 		c2 = (s2[j] >= 'A' && s2[j] <= 'Z') ? s2[j] + 32 : s2[j];
 		if (c1 != c2)
 			return c1 - c2;
-		i++;
-		j++;
 	}
-
-	i = 0;
-	j = 0;
-	while (s1[i] || s2[j])
+	for (size_t i = 0, j = 0; s1[i] || s2[j]; i++, j++)
 	{
-		while (s1[i] == '_')
+		while (s1[i] && !ft_isalnum(s1[i]))
 			i++;
-		while (s2[j] == '_')
+		while (s2[j] && !ft_isalnum(s2[j]))
 			j++;
 		if (s1[i] != s2[j])
 			return (s1[i] - s2[j]) * -1;
-		i++;
-		j++;
 	}
-
 	pre_s1 = pre_underscr(s1);
 	pre_s2 = pre_underscr(s2);
 	if (pre_s1 < pre_s2)

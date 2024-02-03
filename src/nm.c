@@ -3,7 +3,6 @@
 int endianness = -1;
 
 void ___e(void) { printf("OSEF\n"); }
-void _(void) { printf("OSEF\n"); }
 void __(void) { printf("OSEF\n"); }
 void Osef(void) { printf("OSEF\n"); }
 void osef(void) { printf("OSEF\n"); }
@@ -34,6 +33,7 @@ void parsearg(void) { printf("OSEF\n"); }
 void Parsearg(void) { printf("OSEF\n"); }
 void ParSearg(void) { printf("OSEF\n"); }
 void puts_(void) { printf("OSEF\n"); }
+void _(void) { printf("OSEF\n"); }
 void puts2(void) { printf("OSEF\n"); }
 void puts_f(void) { printf("OSEF\n"); }
 void putse(void) { printf("OSEF\n"); }
@@ -139,7 +139,8 @@ static int handle_file(Nm* nm, char const* filename)
 			munmap(fmap, finfo.st_size);
 			return 0;
 		}
-		sort_symbols(nm->symbols, nm->nbsym);
+		if (nm->flags & SORT)
+			sort_symbols(nm->symbols, nm->nbsym);
 		print_symbols(nm, filename, 32);
 		free_symbols(nm->symbols, nm->nbsym);
 	}
@@ -159,7 +160,8 @@ static int handle_file(Nm* nm, char const* filename)
 			munmap(fmap, finfo.st_size);
 			return 0;
 		}
-		sort_symbols(nm->symbols, nm->nbsym);
+		if (nm->flags & SORT)
+			sort_symbols(nm->symbols, nm->nbsym);
 		print_symbols(nm, filename, 64);
 		free_symbols(nm->symbols, nm->nbsym);
 	}

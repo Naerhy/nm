@@ -27,7 +27,7 @@ static char sym_type(Elf64_Shdr* shdr, char* section_names, Elf64_Sym* symbol)
 			return shndx != SHN_UNDEF ? 'W' : 'w';
 	}
 	else if (shndx == SHN_ABS)
-		return 'A';
+		return ELF64_ST_BIND(symbol->st_info) == STB_GLOBAL ? 'A' : 'a';
 	else if (shndx == SHN_COMMON)
 		return 'C';
 	else if (shndx == SHN_UNDEF)
@@ -123,8 +123,8 @@ int save_symbols64(Elf64_Ehdr* ehdr, Nm* nm, off_t fsize)
 	for (size_t i = 0; i < nb_symbols; i++)
 	{
 		symbol = symbols + i + 1;
-		if (ELF64_ST_TYPE(symbol->st_info) != STT_FILE &&
-				ELF64_ST_TYPE(symbol->st_info) != STT_SECTION)
+		if ((nm->flags & DEBUG) || (ELF64_ST_TYPE(symbol->st_info) != STT_FILE &&
+				ELF64_ST_TYPE(symbol->st_info) != STT_SECTION))
 		{
 			if (sw16(symbol->st_shndx) != SHN_UNDEF)
 			{

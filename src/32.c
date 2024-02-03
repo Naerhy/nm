@@ -27,7 +27,7 @@ static char sym_type(Elf32_Shdr* shdr, char* section_names, Elf32_Sym* symbol)
 			return shndx != SHN_UNDEF ? 'W' : 'w';
 	}
 	else if (shndx == SHN_ABS)
-		return 'A';
+		return ELF32_ST_BIND(symbol->st_info) == STB_GLOBAL ? 'A' : 'a';
 	else if (shndx == SHN_COMMON)
 		return 'C';
 	else if (shndx == SHN_UNDEF)
