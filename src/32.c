@@ -58,8 +58,8 @@ static int valid_shstrtab(Elf32_Ehdr* ehdr, Elf32_Shdr* shdr, off_t fsize)
 
 	offset = sw32(shdr->sh_offset);
 	size = sw32(shdr->sh_size);
-	if (!offset || !size || offset + size > (Elf32_Off)fsize || *((uint8_t*)ehdr + offset)
-			|| *((uint8_t*)ehdr + offset + size - 1))
+	if (!offset || !size || sw32(shdr->sh_type) != SHT_STRTAB || offset + size > (Elf32_Off)fsize ||
+			*((uint8_t*)ehdr + offset) || *((uint8_t*)ehdr + offset + size - 1))
 		return 0;
 	return 1;
 }
@@ -72,7 +72,7 @@ static int valid_symtab(Elf32_Ehdr* ehdr, Elf32_Shdr* shdr, off_t fsize)
 	offset = sw32(shdr->sh_offset);
 	size = sw32(shdr->sh_size);
 	if (!offset || !size || offset + size > (Elf32_Off)fsize || !sw32(shdr->sh_link)
-			|| sw32(shdr->sh_link) > sw16(ehdr->e_shnum) || !sw32(shdr->sh_entsize))
+			|| sw32(shdr->sh_link) >= sw16(ehdr->e_shnum) || !sw32(shdr->sh_entsize))
 		return 0;
 	return 1;
 }
@@ -86,6 +86,17 @@ static int valid_strtab(Elf32_Ehdr* ehdr, Elf32_Shdr* shdr, off_t fsize)
 	size = sw32(shdr->sh_size);
 	if (!offset || !size || offset + size > (Elf32_Off)fsize || *((uint8_t*)ehdr + offset)
 			|| *((uint8_t*)ehdr + offset + size - 1))
+		return 0;
+	return 1;
+}
+
+static int valid_symbol(Elf32_Ehdr* ehdr, Elf32_Sym* symbol, Elf32_Shdr* shdr,
+		uint32_t shstrtab_size, uint32_t strtab_size)
+{
+	if (sw32(symbol->st_name) >= strtab_size)
+		return 0;
+	if (sw16(symbol->st_shndx) < SHN_LORESERVE && (sw16(symbol->st_shndx) >= sw16(ehdr->e_shnum) ||
+			sw32((shdr + sw16(symbol->st_shndx))->sh_name) >= shstrtab_size))
 		return 0;
 	return 1;
 }
@@ -123,8 +134,11 @@ int save_symbols32(Elf32_Ehdr* ehdr, Nm* nm, off_t fsize)
 	for (size_t i = 0; i < nb_symbols; i++)
 	{
 		symbol = symbols + i + 1;
-		if (ELF32_ST_TYPE(symbol->st_info) != STT_FILE &&
-				ELF32_ST_TYPE(symbol->st_info) != STT_SECTION)
+		if (!valid_symbol(ehdr, symbol, shdr, sw32((shdr + sw16(ehdr->e_shstrndx))->sh_size),
+				sw32((shdr + sw32(symtab->sh_link))->sh_size)))
+			return -2;
+		if ((nm->flags && DEBUG) || (ELF32_ST_TYPE(symbol->st_info) != STT_FILE &&
+				ELF32_ST_TYPE(symbol->st_info) != STT_SECTION))
 		{
 			if (sw16(symbol->st_shndx) != SHN_UNDEF)
 			{
@@ -138,7 +152,7 @@ int save_symbols32(Elf32_Ehdr* ehdr, Nm* nm, off_t fsize)
 			if (sw32(symbol->st_name))
 				nm->symbols[nm->nbsym].name = ft_strdup(symbol_names + sw32(symbol->st_name), 0);
 			else
-				nm->symbols[nm->nbsym].name = ft_strdup("", 0);
+				nm->symbols[nm->nbsym].name = ft_strdup("(null)", 0);
 			if (!nm->symbols[nm->nbsym].name)
 			{
 				free(nm->symbols[nm->nbsym].value);

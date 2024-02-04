@@ -198,7 +198,6 @@ int main(int argc, char** argv)
 	{
 		if (!handle_file(&nm, "a.out"))
 			retcode = EXIT_FAILURE;
-		// lklist_clear(&nm.symbols, free_symbols);
 	}
 	else
 	{
@@ -206,7 +205,6 @@ int main(int argc, char** argv)
 		{
 			if (!handle_file(&nm, nm.filenames[i]))
 				retcode = EXIT_FAILURE;
-			// lklist_clear(&nm.symbols, free_symbols);
 		}
 	}
 	free(nm.filenames);

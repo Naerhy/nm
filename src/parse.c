@@ -69,7 +69,7 @@ int parse_header32(Elf32_Ehdr* header, off_t fsize)
 		return 0;
 	if (shoff + shentsize * shnum > (Elf32_Off)fsize)
 		return 0;
-	if (sw16(header->e_shstrndx) == SHN_UNDEF)
+	if (sw16(header->e_shstrndx) == SHN_UNDEF || sw16(header->e_shstrndx) >= shnum)
 		return 0;
 	return 1;
 }
@@ -97,7 +97,7 @@ int parse_header64(Elf64_Ehdr* header, off_t fsize)
 		return 0;
 	if (shoff + shentsize * shnum > (Elf64_Off)fsize)
 		return 0;
-	if (sw16(header->e_shstrndx) == SHN_UNDEF)
+	if (sw16(header->e_shstrndx) == SHN_UNDEF || sw16(header->e_shstrndx) >= shnum)
 		return 0;
 	return 1;
 }
