@@ -38,8 +38,7 @@ extern int endianness;
 int parse_args(Nm* nm, int argc, char** argv);
 unsigned char parse_intpr(unsigned char const* intpr, off_t fsize);
 int parse_endian(unsigned char const* intpr);
-int parse_header32(Elf32_Ehdr* header, off_t fsize);
-int parse_header64(Elf64_Ehdr* header, off_t fsize);
+int parse_header(void* ehdr, off_t fsize, int bits);
 
 int save_symbols32(Elf32_Ehdr* header, Nm* nm, off_t fsize);
 int save_symbols64(Elf64_Ehdr* header, Nm* nm, off_t fsize);

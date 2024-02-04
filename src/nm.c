@@ -76,7 +76,7 @@ static void print_symbols(Nm* nm, char const* filename, int bits)
 		wrchar(' ');
 		wrchar(nm->symbols[i].type);
 		wrchar(' ');
-		wrstr(nm->symbols[i].name ? nm->symbols[i].name : "(null)");
+		wrstr(nm->symbols[i].name);
 		wrchar('\n');
 	}
 }
@@ -123,46 +123,28 @@ static int handle_file(Nm* nm, char const* filename)
 		return 0;
 	}
 	nm->symbols = NULL;
-	if (class == ELFCLASS32 && (size_t)finfo.st_size >= sizeof(Elf32_Ehdr))
+	if ((class == ELFCLASS32 && (size_t)finfo.st_size >= sizeof(Elf32_Ehdr))
+			|| (class == ELFCLASS64 && (size_t)finfo.st_size >= sizeof(Elf64_Ehdr)))
 	{
-		if (!parse_header32(fmap, finfo.st_size))
+		if (!parse_header(fmap, finfo.st_size, (class == ELFCLASS32) ? 32 : 64))
 		{
 			wrerr(filename, "Corrupted ELF header");
 			munmap(fmap, finfo.st_size);
 			return 0;
 		}
-		save = save_symbols32(fmap, nm, finfo.st_size);
+		save = (class == ELFCLASS32) ? save_symbols32(fmap, nm, finfo.st_size) :
+				save_symbols64(fmap, nm, finfo.st_size);
 		if (save < 1)
 		{
-			wrerr(filename, (save == -2) ? "Corrupted ELF file" : (save == -1) ? "No symbols" : strerror(errno));
+			wrerr(filename, (save == -2) ? "Corrupted ELF file" :
+					(save == -1) ? "No symbols" : strerror(errno));
 			free_symbols(nm->symbols, nm->nbsym);
 			munmap(fmap, finfo.st_size);
 			return 0;
 		}
 		if (nm->flags & SORT)
 			sort_symbols(nm->symbols, nm->nbsym);
-		print_symbols(nm, filename, 32);
-		free_symbols(nm->symbols, nm->nbsym);
-	}
-	else if (class == ELFCLASS64 && (size_t)finfo.st_size >= sizeof(Elf64_Ehdr))
-	{
-		if (!parse_header64(fmap, finfo.st_size))
-		{
-			wrerr(filename, "Corrupted ELF header");
-			munmap(fmap, finfo.st_size);
-			return 0;
-		}
-		save = save_symbols64(fmap, nm, finfo.st_size);
-		if (save < 1)
-		{
-			wrerr(filename, (save == -2) ? "Corrupted ELF file" : (save == -1) ? "No symbols" : strerror(errno));
-			free_symbols(nm->symbols, nm->nbsym);
-			munmap(fmap, finfo.st_size);
-			return 0;
-		}
-		if (nm->flags & SORT)
-			sort_symbols(nm->symbols, nm->nbsym);
-		print_symbols(nm, filename, 64);
+		print_symbols(nm, filename, (class == ELFCLASS32) ? 32 : 64);
 		free_symbols(nm->symbols, nm->nbsym);
 	}
 	else
