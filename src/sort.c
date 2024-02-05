@@ -31,6 +31,10 @@ static int namecmp(char const* s1, char const* s2)
 	size_t pre_s1;
 	size_t pre_s2;
 
+	if (!ft_strcmp(s1, "(null)", 0))
+		return -1;
+	if (!ft_strcmp(s2, "(null)", 0))
+		return 1;
 	for (size_t i = 0, j = 0; s1[i] || s2[j]; i++, j++)
 	{
 		while (s1[i] && !ft_isalnum(s1[i]))
