@@ -43,7 +43,7 @@ int parse_header(void* ehdr, off_t fsize, int bits);
 int save_symbols32(Elf32_Ehdr* header, Nm* nm, off_t fsize);
 int save_symbols64(Elf64_Ehdr* header, Nm* nm, off_t fsize);
 
-void sort_symbols(Symbol* symbols, size_t size);
+void sort_symbols(Symbol* symbols, size_t size, int reverse);
 
 uint16_t sw16(uint16_t v);
 uint32_t sw32(uint32_t v);

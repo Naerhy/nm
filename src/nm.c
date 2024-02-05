@@ -16,6 +16,7 @@ void os_e_f(void) { printf("OSEF\n"); }
 void o_sef(void) { printf("OSEF\n"); }
 void putsv(void) { printf("OSEF\n"); }
 void o_se_f(void) { printf("OSEF\n"); }
+void osef_(void) { printf("OSEF\n"); }
 void os_zf(void) { printf("OSEF\n"); }
 void _osef(void) { printf("OSEF\n"); }
 void puts_v(void) { printf("OSEF\n"); }
@@ -143,7 +144,7 @@ static int handle_file(Nm* nm, char const* filename)
 			return 0;
 		}
 		if (nm->flags & SORT)
-			sort_symbols(nm->symbols, nm->nbsym);
+			sort_symbols(nm->symbols, nm->nbsym, nm->flags & REVERSE);
 		print_symbols(nm, filename, (class == ELFCLASS32) ? 32 : 64);
 		free_symbols(nm->symbols, nm->nbsym);
 	}

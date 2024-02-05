@@ -106,6 +106,18 @@ static int valid_string(uint32_t start, char* strtab_off, uint32_t size)
 	return 0;
 }
 
+static int filter_type(char type, uint8_t flags, Elf32_Sym* symbol)
+{
+	uint8_t bind;
+
+	bind = ELF32_ST_BIND(symbol->st_info);
+	if ((flags & UNDEFINED) && (type != 'U' && type != 'v' && type != 'w'))
+		return 0;
+	if ((flags & EXTERN) && (bind == STB_LOCAL))
+		return 0;
+	return 1;
+}
+
 int save_symbols32(Elf32_Ehdr* ehdr, Nm* nm, off_t fsize)
 {
 	Elf32_Shdr* shdr;
@@ -142,6 +154,9 @@ int save_symbols32(Elf32_Ehdr* ehdr, Nm* nm, off_t fsize)
 		if ((nm->flags && DEBUG) || (ELF32_ST_TYPE(symbol->st_info) != STT_FILE &&
 				ELF32_ST_TYPE(symbol->st_info) != STT_SECTION))
 		{
+			nm->symbols[nm->nbsym].type = sym_type(shdr, symbol);
+			if (!filter_type(nm->symbols[nm->nbsym].type, nm->flags, symbol))
+				continue;
 			if (sw16(symbol->st_shndx) != SHN_UNDEF)
 			{
 				nm->symbols[nm->nbsym].value = ft_itoa(sw32(symbol->st_value), "0123456789abcdef");
@@ -150,7 +165,6 @@ int save_symbols32(Elf32_Ehdr* ehdr, Nm* nm, off_t fsize)
 			}
 			else
 				nm->symbols[nm->nbsym].value = NULL;
-			nm->symbols[nm->nbsym].type = sym_type(shdr, symbol);
 			if (sw32(symbol->st_name))
 			{
 				if (valid_string(sw32(symbol->st_name), strtab_off, sw32(strtab->sh_size)))

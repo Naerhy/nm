@@ -61,16 +61,18 @@ static int namecmp(char const* s1, char const* s2)
 		return ft_strcmp(s1 + pre_s1, s2 + pre_s2, 0);
 }
 
-void sort_symbols(Symbol* symbols, size_t size)
+void sort_symbols(Symbol* symbols, size_t size, int reverse)
 {
 	int cmp;
 	Symbol tmp;
+	int rev;
 
+	rev = (reverse) ? -1 : 1;
 	for (size_t i = 0; i < size; i++)
 	{
 		for (size_t j = i + 1; j < size; j++)
 		{
-			cmp = namecmp(symbols[i].name, symbols[j].name);
+			cmp = namecmp(symbols[i].name, symbols[j].name) * rev;
 			if (cmp > 0)
 			{
 				tmp = symbols[i];
@@ -83,7 +85,7 @@ void sort_symbols(Symbol* symbols, size_t size)
 				symbols[i] = symbols[j];
 				symbols[j] = tmp;
 			}
-			else {}
+			else { /* ... */ }
 		}
 	}
 }
