@@ -151,7 +151,7 @@ int save_symbols32(Elf32_Ehdr* ehdr, Nm* nm, off_t fsize)
 		symbol = symbols + i + 1;
 		if (!valid_symbol(ehdr, symbol, strtab))
 			return -2;
-		if ((nm->flags && DEBUG) || (ELF32_ST_TYPE(symbol->st_info) != STT_FILE &&
+		if ((nm->flags & DEBUG) || (ELF32_ST_TYPE(symbol->st_info) != STT_FILE &&
 				ELF32_ST_TYPE(symbol->st_info) != STT_SECTION))
 		{
 			nm->symbols[nm->nbsym].type = sym_type(shdr, symbol);
