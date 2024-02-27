@@ -1,6 +1,6 @@
 # nm
 
-Implementation of nm command.
+Custom implementation of nm command.
 
 ## Description
 
@@ -22,12 +22,12 @@ The program accepts the following options: `-a` `-g` `-p` `-r` `-u`.
 ## Usage
 
 ```
-# build the shared library
+# build the program
 make
 
 # run the executable
 ./ft_nm [options] [file...]
 
-# use the shell script
+# use the shell script to check diff
 ./nm_diff.sh [file...]
 ```
